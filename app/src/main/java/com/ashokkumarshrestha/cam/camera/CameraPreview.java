@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,6 +46,16 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         // underlying surface is created and destroyed.
         mHolder = getHolder();
         mHolder.addCallback(this);
+    }
+
+    public void focusCamera() {
+        Camera.Parameters params = mCamera.getParameters();
+        List<String> focusModes = params.getSupportedFocusModes();
+        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+            //params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            mCamera.setParameters(params);
+        }
     }
 
     /**
@@ -88,6 +99,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             mCamera.setPreviewDisplay(holder);
             mCamera.startPreview();
             Log.d(TAG, "Camera preview started.");
+
+            //focus camera always
+            focusCamera();
         } catch (IOException e) {
             Log.d(TAG, "Error setting camera preview: " + e.getMessage());
         }
@@ -147,10 +161,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     private float getFingerSpacing(MotionEvent event) {
-        // ...
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
-        return (float)Math.sqrt(x * x + y * y);
+        return (float) Math.sqrt(x * x + y * y);
     }
 
     public void handleFocus(MotionEvent event, Camera.Parameters params) {
@@ -171,6 +184,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 }
             });
         }
+
+        Toast.makeText(this.getContext(), "x: " + x + " , y: " + y, Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
